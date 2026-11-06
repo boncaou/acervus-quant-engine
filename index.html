@@ -92,11 +92,13 @@ td.wrapc{white-space:normal;min-width:240px;max-width:440px;text-align:left;font
 .legend i{display:inline-block;width:12px;height:3px;border-radius:2px;vertical-align:middle;margin-right:5px}
 .hm{overflow-x:auto}
 .hm table td,.hm table th{padding:0;border:0}
-.hm td.cell{width:46px;height:34px;min-width:46px;font:600 13px var(--f-mono);text-align:center;color:var(--ink);border:1px solid var(--panel)}
+.hm table{width:100%;table-layout:fixed}
+.hm table col.lc{width:250px}
+.hm td.cell{height:28px;font:600 11.5px var(--f-mono);overflow:hidden;text-align:center;color:var(--ink);border:1px solid var(--panel)}
 .hm td.cell.dk{color:#fff}
 .hm td.cell:hover{outline:2px solid var(--ink);color:var(--ink)}
-.hm th.rl{text-align:left;font:500 13.5px var(--f-mono);white-space:nowrap;color:var(--ink2);text-transform:none;letter-spacing:0;padding-right:8px;position:static;background:none;cursor:default}
-.hm th.cl{font:600 12.5px var(--f-mono);padding-bottom:4px;color:var(--muted);position:static;background:none;cursor:default;text-transform:none}
+.hm th.rl{text-align:left;font:500 12px var(--f-mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink2);text-transform:none;letter-spacing:0;padding-right:8px;position:static;background:none;cursor:default}
+.hm th.cl{font:600 11px var(--f-mono);padding-bottom:4px;color:var(--muted);position:static;background:none;cursor:default;text-transform:none}
 .wbar{display:inline-block;height:9px;border-radius:0 2px 2px 0;background:var(--accent);vertical-align:middle}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13px}
 .kv dt{color:var(--muted)} .kv dd{margin:0;font-family:var(--f-mono);font-size:12.5px}
@@ -578,8 +580,8 @@ function rCorr(){
    <p class="small" style="padding:8px 16px 14px">Corr. y beta con SPY se calculan siempre con meses (es el dato de mercado disponible). En el 10% de meses más malos del SPY (≤ ${pct(q10,1)}), un número positivo indica que la estrategia protege.</p></div>
   <div class="panel"><h3>Pares más correlacionados</h3><div class="tbl"><table><thead><tr><th class="l">Par</th><th>Corr.</th></tr></thead><tbody>${pairs.slice(0,12).map(([i,j,v])=>`<tr><td class="l">${esc(list[i].label)} · ${esc(list[j].label)}</td><td class="num">${fmt(v)}</td></tr>`).join('')}</tbody></table></div>
    <h3 style="margin-top:14px">Menos correlacionados</h3><div class="tbl"><table><tbody>${pairs.slice(-6).reverse().map(([i,j,v])=>`<tr><td class="l">${esc(list[i].label)} · ${esc(list[j].label)}</td><td class="num">${fmt(v)}</td></tr>`).join('')}</tbody></table></div></div></div>`;
-  const hm=el.querySelector('#hm');let h='<tr><th></th>'+list.map((_,j)=>`<th class="cl">${j+1}</th>`).join('')+'</tr>';
-  list.forEach((s,i)=>{h+=`<tr><th class="rl">${i+1}. ${esc(s.label)}</th>`+list.map((t,j)=>`<td class="cell${Math.abs(C[i][j])>=0.55?' dk':''}" style="background:${divColor(C[i][j])}" title="${esc(s.label)} × ${esc(t.label)}: ${C[i][j].toFixed(2)}">${i===j?'1':(Math.abs(C[i][j])<0.005?0:C[i][j]).toFixed(2).replace('0.','.')}</td>`).join('')+'</tr>'});hm.innerHTML=h;
+  const hm=el.querySelector('#hm');let h='<colgroup><col class="lc">'+list.map(()=>'<col>').join('')+'</colgroup><tr><th></th>'+list.map((_,j)=>`<th class="cl">${j+1}</th>`).join('')+'</tr>';
+  list.forEach((s,i)=>{h+=`<tr><th class="rl" title="${esc(s.label)}">${i+1}. ${esc(s.label.replace(' FUT ·',' ·'))}</th>`+list.map((t,j)=>`<td class="cell${Math.abs(C[i][j])>=0.55?' dk':''}" style="background:${divColor(C[i][j])}" title="${esc(s.label)} × ${esc(t.label)}: ${C[i][j].toFixed(2)}">${i===j?'1':(Math.abs(C[i][j])<0.005?0:C[i][j]).toFixed(2).replace('0.','.')}</td>`).join('')+'</tr>'});hm.innerHTML=h;
 }
 /* ================= OPTIMIZADOR ================= */
 function projBox(v,lo,hi){let a=Math.min(...v)-hi-1,b=Math.max(...v)-lo+1;for(let it=0;it<80;it++){const m=(a+b)/2;let s=0;for(const x of v)s+=Math.min(hi,Math.max(lo,x-m));if(s>1)a=m;else b=m}const m=(a+b)/2;return v.map(x=>Math.min(hi,Math.max(lo,x-m)))}
