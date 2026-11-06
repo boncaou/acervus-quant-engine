@@ -94,10 +94,11 @@ td.wrapc{white-space:normal;min-width:240px;max-width:440px;text-align:left;font
 .hm table td,.hm table th{padding:0;border:0}
 .hm table{width:100%;table-layout:fixed}
 .hm table col.lc{width:290px}
-.hm td.cell{height:28px;font:600 11.5px var(--f-mono);overflow:hidden;text-align:center;color:var(--ink);border:1px solid var(--panel)}
+.hm{--rh:clamp(15px,calc((100vh - 200px) / 29),28px)}
+.hm td.cell{height:var(--rh);line-height:1;font:600 clamp(9px,calc(var(--rh) * .45),11.5px) var(--f-mono);overflow:hidden;text-align:center;color:var(--ink);border:1px solid var(--panel)}
 .hm td.cell.dk{color:#fff}
 .hm td.cell:hover{outline:2px solid var(--ink);color:var(--ink)}
-.hm th.rl{text-align:left;font:500 11.5px var(--f-mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink2);text-transform:none;letter-spacing:0;padding-right:8px;position:static;background:none;cursor:default}
+.hm th.rl{text-align:left;height:var(--rh);line-height:1;font:500 clamp(9.5px,calc(var(--rh) * .45),11.5px) var(--f-mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink2);text-transform:none;letter-spacing:0;padding-right:8px;position:static;background:none;cursor:default}
 .hm th.cl{font:600 11px var(--f-mono);padding-bottom:4px;color:var(--muted);position:static;background:none;cursor:default;text-transform:none}
 .wbar{display:inline-block;height:9px;border-radius:0 2px 2px 0;background:var(--accent);vertical-align:middle}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13px}
