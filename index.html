@@ -445,6 +445,8 @@ function stackChart(el,{layers,s0,s1,h=240,yfmt=pct,top=null,ref=null}){
   const vl=svgEl('line',{y1:mt,y2:H-mb,stroke:cssv('--ink2'),'stroke-width':1,opacity:0});svg.append(vl);
   el.append(svg);const tip=document.createElement('div');tip.className='tip';tip.hidden=true;el.append(tip);
   svg.addEventListener('pointermove',e=>{const b=svg.getBoundingClientRect(),x=(e.clientX-b.left)*W/b.width;let k=Math.round(s0+(x-ml)/(W-ml-mr)*(s1-s0));k=Math.max(s0,Math.min(s1,k));
+    // salta al día dibujado (el de mayor total de su tramo), para que el cursor muestre el pico que se ve
+    {let lo=0,hi2=idx.length-1;while(lo<hi2){const m=(lo+hi2)>>1;if(idx[m]<k)lo=m+1;else hi2=m}const c=[idx[Math.max(0,lo-1)],idx[lo]];k=Math.abs(X(c[0])-X(k))<Math.abs(X(c[1])-X(k))?c[0]:c[1]}
     vl.setAttribute('x1',X(k));vl.setAttribute('x2',X(k));vl.setAttribute('opacity',.5);let t=0;for(const L of layers)t+=L.v[k];
     tip.innerHTML=`<b>${DATES[k]}</b> · total ${yfmt(t,1)}<br>`+layers.slice().reverse().map(L=>`<span style="color:${L.color}">■</span> ${esc(L.name)}: ${yfmt(L.v[k],1)}`).join('<br>');tip.hidden=false;
     const px=(X(k)/W)*b.width;tip.style.left=Math.min(px+12,b.width-tip.offsetWidth-4)+'px';tip.style.top='8px'});
