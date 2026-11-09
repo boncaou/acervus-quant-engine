@@ -298,7 +298,7 @@ function hex2rgb(h){h=h.replace('#','');return [0,2,4].map(i=>parseInt(h.slice(i
 function mix(a,b,t){const A=hex2rgb(a),B=hex2rgb(b);return 'rgb('+A.map((x,i)=>Math.round(x+(B[i]-x)*t)).join(',')+')'}
 const PAL=()=>['--s1','--s2','--s3','--s4','--s5','--s6','--s7','--s8'].map(cssv);
 /* ---------- tabs ---------- */
-const TABS=[['logica','Lógica'],['margen','Margen ETF vs Futuro'],['correlaciones','Correlaciones'],['resumen','Resumen'],['estrategias','Estrategias'],['riesgo','Riesgo'],['optimizador','Optimizador'],['reco','Recomendación'],['cruce','Cruce MC vs backtest'],['fuentes','Supuestos y fuentes']];
+const TABS=[['logica','Lógica'],['margen','Margen ETF vs Futuro'],['correlaciones','Correlaciones'],['estrategias','Estrategias'],['riesgo','Riesgo'],['optimizador','Optimizador'],['reco','Recomendación'],['cruce','Cruce MC vs backtest'],['fuentes','Supuestos y fuentes']];
 const tabsEl=document.getElementById('tabs');
 TABS.forEach(([k,l])=>{const b=document.createElement('button');b.role='tab';b.textContent=l;b.dataset.k=k;b.setAttribute('aria-selected',k===ST.tab);b.onclick=()=>{ST.tab=k;try{history.replaceState(null,'','#'+k)}catch(e){}showTab()};tabsEl.append(b)});
 function showTab(){for(const b of tabsEl.children)b.setAttribute('aria-selected',b.dataset.k===ST.tab);for(const v of document.querySelectorAll('section.view'))v.hidden=v.dataset.tab!==ST.tab;render()}
@@ -344,20 +344,7 @@ function rResumen(){
   <div class="panel"><h3>Curva acumulada (simple, sin reinversión, % del capital)</h3>
    <div class="legend"><span><i style="background:var(--s1)"></i>Sistema actual: 1 contrato por estrategia</span><span><i style="background:var(--s2)"></i>Igual peso, nocional total = capital</span></div>
    <div id="ch-res-eq"></div></div>
-  <div class="panel" style="padding:0"><div style="padding:14px 16px 8px"><h3>Universo de estrategias</h3>
-   <p class="note">Los nombres son los de las señales en MultiCharts ("… FUT") más el futuro del chart, porque la misma señal corre en varios charts. La hoja del backtest queda al lado como referencia. Marca o desmarca para armar el análisis (el selector Universo pasa a "Personalizado"). Las pausadas y las que no tienen futuro quedan fuera por defecto, con su motivo.</p></div>
-   <div class="tbl" style="border:0;border-top:1px solid var(--line);border-radius:0"><table id="t-univ"><thead><tr><th class="l">Incl.</th><th class="l">Estado</th><th class="l">Señal en MultiCharts</th><th class="l">Hoja del backtest</th><th class="l">ETF · intermarket</th><th class="l">Futuro</th><th class="l">Workspace · chart</th><th class="l">Motivo / nota</th><th>Desde</th><th>Trades</th></tr></thead><tbody></tbody></table></div></div>`;
-  const tb=el.querySelector('#t-univ tbody');
-  const order={activa:0,espera:1,pausada:2,excluida:3};
-  const flagTxt={proxy:['proxy','w','El futuro no replica exacto al ETF'],mismatch:['XLF≠XLV','b','El backtest es en XLF, pero el chart opera XLV → XAV'],bug:['código','w','Versión FUT con 2 detalles pendientes de revisar (dayOfWeek y average sin data3)']};
-  const rows=[...S].sort((a,b)=>order[a.status]-order[b.status]||String(a.fut).localeCompare(String(b.fut)));
-  for(const s of rows){const tr=document.createElement('tr');if(!ST.inc[s.id])tr.className='off';
-    const fl=s.flags.map(f=>`<span class="flag ${flagTxt[f][1]}" title="${esc(flagTxt[f][2])}">${flagTxt[f][0]}</span>`).join('');
-    const note=s.reason||s.flags.map(f=>flagTxt[f][2]).join('. ');
-    tr.innerHTML=`<td class="l"><input type="checkbox" id="inc-${s.id}" ${ST.inc[s.id]?'checked':''} aria-label="Incluir ${esc(s.label)}"></td><td class="l"><span class="chip c-${s.status}">${s.status==='espera'?'en espera':s.status}</span></td>
-     <td class="l"><b>${esc(s.mc||'—')}</b>${fl}</td><td class="l small">${esc(s.ari)}</td><td class="l">${s.etf}${s.d3?' · '+s.d3:''}</td><td class="l">${s.fut?`${s.fut} <span class="small">${FUT[s.fut]?.ib||''}</span>`:'—'}</td><td class="l small">${s.ws?esc(s.ws)+' · '+esc(s.chart):'sin chart'}</td><td class="wrapc">${esc(note)}</td><td class="num">${DATES[s.start].slice(0,4)}</td><td class="num">${s.trades.length}</td>`;
-    tr.querySelector('input').onchange=e=>{ST.inc[s.id]=e.target.checked;ST.univ='custom';document.getElementById('c-univ').value='custom';ST.opt=null;rResumen()};tb.append(tr)}
-  for(const s of NOBT){const tr=document.createElement('tr');tr.innerHTML=`<td class="l">—</td><td class="l"><span class="chip c-sinbt">activa · sin backtest</span></td><td class="l"><b>${s.name} FUT</b></td><td class="l small">no viene</td><td class="l">${s.etf}${s.d3?' · '+s.d3:''}</td><td class="l">${s.fut} <span class="small">${FUT[s.fut].ib}</span></td><td class="l small">${s.ws} · ${s.chart}</td><td class="wrapc">Opera en el sistema pero no viene en el archivo del backtest. No entra en las métricas hasta tener su backtest.</td><td class="num">–</td><td class="num">–</td>`;tb.append(tr)}
+  `;
   const cS=new Float64Array(N),cE=new Float64Array(N);let a=0,b=0;for(let k=s0;k<=s1;k++){a+=rS[k];b+=rE[k];cS[k]=a;cE[k]=b}
   lineChart(el.querySelector('#ch-res-eq'),{series:[{name:'Sistema 1 contrato',v:cS,color:cssv('--s1')},{name:'Igual peso',v:cE,color:cssv('--s2')}],s0,s1,h:280});
 }
@@ -401,6 +388,22 @@ function rEstr(){
       const cls=['ann','mdd','avg','worst','pl1','dd1','wt1','rom'].includes(c[0])?sgn(v):'';return `<td class="num ${cls}">${f}</td>`}).join('');
     tr.onclick=()=>detail(r.s);tr.onkeydown=e=>{if(e.key==='Enter')detail(r.s)};tb.append(tr)}
   for(const th of el.querySelectorAll('th'))th.onclick=()=>{const kk=th.dataset.k;ST.sort=ST.sort.k===kk?{k:kk,d:-ST.sort.d}:{k:kk,d:kk==='label'||kk==='fut'?1:-1};rEstr()};
+  rUniv(el);
+}
+function rUniv(host){const el=document.createElement('div');el.innerHTML=`<div class="panel" style="padding:0"><div style="padding:14px 16px 8px"><h3>Universo de estrategias</h3>
+   <p class="note">Los nombres son los de las señales en MultiCharts ("… FUT") más el futuro del chart, porque la misma señal corre en varios charts. La hoja del backtest queda al lado como referencia. Marca o desmarca para armar el análisis (el selector Universo pasa a "Personalizado"). Las pausadas y las que no tienen futuro quedan fuera por defecto, con su motivo.</p></div>
+   <div class="tbl" style="border:0;border-top:1px solid var(--line);border-radius:0"><table id="t-univ"><thead><tr><th class="l">Incl.</th><th class="l">Estado</th><th class="l">Señal en MultiCharts</th><th class="l">Hoja del backtest</th><th class="l">ETF · intermarket</th><th class="l">Futuro</th><th class="l">Workspace · chart</th><th class="l">Motivo / nota</th><th>Desde</th><th>Trades</th></tr></thead><tbody></tbody></table></div></div>`;host.append(el);
+  const tb=el.querySelector('#t-univ tbody');
+  const order={activa:0,espera:1,pausada:2,excluida:3};
+  const flagTxt={proxy:['proxy','w','El futuro no replica exacto al ETF'],mismatch:['XLF≠XLV','b','El backtest es en XLF, pero el chart opera XLV → XAV'],bug:['código','w','Versión FUT con 2 detalles pendientes de revisar (dayOfWeek y average sin data3)']};
+  const rows=[...S].sort((a,b)=>order[a.status]-order[b.status]||String(a.fut).localeCompare(String(b.fut)));
+  for(const s of rows){const tr=document.createElement('tr');if(!ST.inc[s.id])tr.className='off';
+    const fl=s.flags.map(f=>`<span class="flag ${flagTxt[f][1]}" title="${esc(flagTxt[f][2])}">${flagTxt[f][0]}</span>`).join('');
+    const note=s.reason||s.flags.map(f=>flagTxt[f][2]).join('. ');
+    tr.innerHTML=`<td class="l"><input type="checkbox" id="inc-${s.id}" ${ST.inc[s.id]?'checked':''} aria-label="Incluir ${esc(s.label)}"></td><td class="l"><span class="chip c-${s.status}">${s.status==='espera'?'en espera':s.status}</span></td>
+     <td class="l"><b>${esc(s.mc||'—')}</b>${fl}</td><td class="l small">${esc(s.ari)}</td><td class="l">${s.etf}${s.d3?' · '+s.d3:''}</td><td class="l">${s.fut?`${s.fut} <span class="small">${FUT[s.fut]?.ib||''}</span>`:'—'}</td><td class="l small">${s.ws?esc(s.ws)+' · '+esc(s.chart):'sin chart'}</td><td class="wrapc">${esc(note)}</td><td class="num">${DATES[s.start].slice(0,4)}</td><td class="num">${s.trades.length}</td>`;
+    tr.querySelector('input').onchange=e=>{ST.inc[s.id]=e.target.checked;ST.univ='custom';document.getElementById('c-univ').value='custom';ST.opt=null;render()};tb.append(tr)}
+  for(const s of NOBT){const tr=document.createElement('tr');tr.innerHTML=`<td class="l">—</td><td class="l"><span class="chip c-sinbt">activa · sin backtest</span></td><td class="l"><b>${s.name} FUT</b></td><td class="l small">no viene</td><td class="l">${s.etf}${s.d3?' · '+s.d3:''}</td><td class="l">${s.fut} <span class="small">${FUT[s.fut].ib}</span></td><td class="l small">${s.ws} · ${s.chart}</td><td class="wrapc">Opera en el sistema pero no viene en el archivo del backtest. No entra en las métricas hasta tener su backtest.</td><td class="num">–</td><td class="num">–</td>`;tb.append(tr)}
 }
 function detail(s){
   const [S0,s1]=range(),s0=effStart(s,S0),o=stats(s.r,s0,s1,ST.freq,s.pos,s.tv);
@@ -486,7 +489,7 @@ function marginOsc(el,list,s0,s1,mode='fut',topY=null){
    <div id="mo-s"></div><div id="mo-d"></div>
    ${etf?'':`<h3 style="margin-top:16px">Exposición: nocional dentro (% del capital), igual en los dos sistemas</h3><p class="small">Con 1 contrato por estrategia la exposición llega a ${pct(nx,0)} del capital. Es la cifra que mueve el P/L, y es la misma con ETF o con futuro; el margen es solo la garantía.</p><div id="mo-l"></div>`}
    <div class="grid2" style="margin-top:12px"><div><h3>${W} según el drawdown</h3><div class="tbl"><table id="mo-t1"><thead><tr><th class="l">Tramo de drawdown</th><th>Días</th><th>${W} medio</th><th>Máximo</th>${MGN.map(g=>`<th>${g}</th>`).join('')}</tr></thead><tbody></tbody></table></div>
-     <p class="small" style="margin-top:6px">Drawdown del sistema de 1 contrato en % del capital inicial (${usd(cap)}), igual que el Máx DD del Resumen. Sirve para ver si en las caídas el sistema está más o menos cargado de margen.</p></div>
+     <p class="small" style="margin-top:6px">Drawdown del sistema de 1 contrato en % del capital inicial (${usd(cap)}). Sirve para ver si en las caídas el sistema está más o menos cargado de margen.</p></div>
     <div><h3>Los 20 días de mayor uso de ${W.toLowerCase()}</h3><div class="tbl" style="max-height:420px;overflow:auto"><table id="mo-t2"><thead><tr><th class="l">Fecha</th><th>${W}</th><th>Nocional</th><th>Posiciones</th><th class="l">${etf?'ETF dentro':'Futuros dentro'}</th><th>Drawdown</th></tr></thead><tbody></tbody></table></div></div></div>`;
   for(const b of el.querySelectorAll('#mo-k button'))b.onclick=()=>{ST.mgKind=b.dataset.v;rMargen()};
   if(!etf)lineChart(el.querySelector('#mo-l'),{series:[{name:'Nocional',v:nU,color:P[1],w:1.1}],s0,s1,h:170,yfmt:(v,d)=>pct(v,d?1:0)});
@@ -771,7 +774,7 @@ function rReco(){
   <div class="warnbox"><b>Antes de poner dinero del fondo:</b> la ejecución todavía no replica el backtest (ver la pestaña Cruce: entradas y salidas un día tarde y trades que faltan en ES y NQ). Mientras eso siga, el resultado real va a diferir del de esta tabla aunque la estrategia sea buena. Los números son del backtest en ETFs (base ${BASE==='usd'?'$ por contrato':'% del nocional'}), optimistas por construcción y sin slippage.</div>
   <div class="tbl"><table><thead><tr><th class="l">Recomendación</th><th class="l">Estrategia · futuro</th><th>Sharpe antes</th><th>Sharpe fuera</th><th>Se mantiene</th><th>PF fuera</th><th>Aporte al Sharpe de la cartera</th><th>Correl. media</th><th>Problemas en vivo</th><th class="l">Por qué</th></tr></thead><tbody>
   ${rows.map(r=>`<tr class="click" data-id="${r.s.id}"><td class="l"><span class="chip ${lab[r.cls][1]}">${lab[r.cls][0]}</span></td><td class="l"><b>${esc(r.s.mc||r.s.name)}</b> · ${r.s.fut}</td><td class="num">${fmt(r.ins.sharpe)}</td><td class="num">${fmt(r.oo.sharpe)}</td><td class="num ${r.deg<0.5?'neg':''}">${pct(r.deg,0)}</td><td class="num">${fmt(r.oo.pf)}</td><td class="num ${sgn(r.d)}">${(r.d>=0?'+':'')+fmt(r.d,3)}</td><td class="num">${fmt(r.c,2)}</td><td class="num ${r.xs?'neg':''}">${r.xs||'–'}</td><td class="wrapc">${esc(r.why)}</td></tr>`).join('')}</tbody></table></div>
-  <p class="small">Aporte = Sharpe de la cartera de las activas con la estrategia menos sin ella (desde 2017-07, mensual). Para las que no están activas, es lo que sumaría al agregarla. Correlación media con las demás activas desde 2017-07. Problemas en vivo = filas de la pestaña Cruce con falta, sobra o un día tarde. Para pesos óptimos, usar el Optimizador con estas estrategias marcadas en Resumen.</p>`;
+  <p class="small">Aporte = Sharpe de la cartera de las activas con la estrategia menos sin ella (desde 2017-07, mensual). Para las que no están activas, es lo que sumaría al agregarla. Correlación media con las demás activas desde 2017-07. Problemas en vivo = filas de la pestaña Cruce con falta, sobra o un día tarde. Para pesos óptimos, usar el Optimizador con estas estrategias marcadas en la pestaña Estrategias.</p>`;
   el.querySelector('#rc-sh').onchange=e=>{RC.sh=+e.target.value||0;rReco()};el.querySelector('#rc-pf').onchange=e=>{RC.pf=+e.target.value||0;rReco()};
   for(const tr of el.querySelectorAll('tr[data-id]'))tr.onclick=()=>detail(S[+tr.dataset.id]);
 }
